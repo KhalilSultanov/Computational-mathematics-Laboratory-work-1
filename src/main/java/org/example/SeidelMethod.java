@@ -5,28 +5,31 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class SeidelMethod {
-    static boolean test = true;
-    final float eps;
-    float[] VectorOfAnswers;
+    static boolean input_data_cheking = true;
+    final float accuracy;
+    float[] answer;
     float[] p;
     int iter = 0;
+
     public SeidelMethod(float expectedly) {
-        eps = expectedly;
+        accuracy = expectedly;
     }
-    public static boolean checkDominant(float[][] M, int n) {
+
+    public static boolean dominationChecking(float[][] M, int n) {
         int i, j, k = 1;
         float sum;
-        for(i = 0; i < n; i ++){
+        for (i = 0; i < n; i++) {
             sum = 0;
-            for(j = 0; j < n; j ++){
+            for (j = 0; j < n; j++) {
                 sum += Math.abs(M[i][j]);
             }
-            sum-=Math.abs(M[i][i]);
-            if(sum>Math.abs(M[i][i])){
+            sum -= Math.abs(M[i][i]);
+            if (sum > Math.abs(M[i][i])) {
                 k = 0;
                 break;
             }
-        }if(k == 0) {
+        }
+        if (k == 0) {
             k = 1;
             for (i = 0; i < n; i++) {
                 sum = 0;
@@ -50,12 +53,13 @@ public class SeidelMethod {
         }
         return (k == 1);
     }
+
     private boolean tryToRewriteString(float[][] M, float[] B) {
-        for(int i = 0; i < M.length; i++){
+        for (int i = 0; i < M.length; i++) {
             float LocalMax = Math.abs(M[i][0]);
             int CountMax;
-            for(int j = i; j < M.length; j++){
-                if(LocalMax < Math.abs(M[j][i])) {
+            for (int j = i; j < M.length; j++) {
+                if (LocalMax < Math.abs(M[j][i])) {
                     LocalMax = Math.max(LocalMax, Math.abs(M[j][i]));
                     CountMax = j;
                     float[] t = M[i];
@@ -67,75 +71,82 @@ public class SeidelMethod {
                 }
             }
         }
-        return checkDominant(M, M.length);
+        return dominationChecking(M, M.length);
     }
-    boolean checkRes(float[] VectorOfAnswers, float[] p, int n, float eps) {
+
+    boolean resultCheck(float[] answer, float[] p, int n, float accuracy) {
         float norm = 0;
-        for(int i = 0; i < n; i++){
-            norm+=(VectorOfAnswers[i] - p[i])*(VectorOfAnswers[i] - p[i]);
+        for (int i = 0; i < n; i++) {
+            norm += (answer[i] - p[i]) * (answer[i] - p[i]);
         }
-        return (Math.sqrt(norm) <= eps);
+        return (Math.sqrt(norm) <= accuracy);
     }
-    float roundingAnswers(float VectorOfAnswers, float eps){
+
+    float roundingAnswers(float answer, float accuracy) {
         int i = 0;
-        float newEps = eps;
-        while (newEps < 1){
+        float newEps = accuracy;
+        while (newEps < 1) {
             i++;
-            newEps*=10;
+            newEps *= 10;
         }
         int rounding = (int) Math.pow(10.0, i);
-        VectorOfAnswers = (int)(VectorOfAnswers*rounding + 0.5)/(float)(rounding);
-        return VectorOfAnswers;
+        answer = (int) (answer * rounding + 0.5) / (float) (rounding);
+        return answer;
     }
-    public void solveMatrix(float[][] M,float[] B) throws IOException {
-        VectorOfAnswers = new float[M.length];
-        p = new float[M.length];
-        for(int i = 0 ; i <M.length; i ++){
-            VectorOfAnswers[i] = 1;}
-        if(checkDominant(M, M.length)){
-            while(!checkRes(VectorOfAnswers, p, M.length, eps)){
-                System.arraycopy(VectorOfAnswers, 0, p, 0, M.length);
-                for(int j = 0; j < M.length; j ++){
-                    float var = 0;
-                    for(int i = 0; i < M.length; i ++){
-                        if(i!=j){
-                            var+=(M[j][i])*VectorOfAnswers[i];}}
-                    VectorOfAnswers[j] = (B[j] - var)/M[j][j];}
+
+    public void matrixSolvingWithGaussSeidelMethod(float[][] array_m, float[] array_b) throws IOException {
+        p = new float[array_m.length];
+        answer = new float[array_m.length];
+        for (int i = 0; i < array_m.length; i++) {
+            answer[i] = 1;
+        }
+        if (dominationChecking(array_m, array_m.length)) {
+            while (!resultCheck(answer, p, array_m.length, accuracy)) {
+                System.arraycopy(answer, 0, p, 0, array_m.length);
+                for (int j = 0; j < array_m.length; j++) {
+                    float variable = 0;
+                    for (int i = 0; i < array_m.length; i++) {
+                        if (i != j) {
+                            variable += (array_m[j][i]) * answer[i];
+                        }
+                    }
+                    answer[j] = (array_b[j] - variable) / array_m[j][j];
+                }
                 iter++;
-                if(iter >= 1000){
-                    System.out.println("Решение не получено спустя 1000 иттераций.");
+                if (iter >= 1000) {
+                    System.out.println("The solution is not received after 1000 iterations.");
                     System.exit(0);
                     break;
                 }
             }
-            System.out.println("Решение системы:");
-            System.out.println("Иттераций: " + iter);
-            for(int i = 0; i < M.length; i++){
-                System.out.println("x" + i + " = " + roundingAnswers(VectorOfAnswers[i], eps));
+            System.out.println("System solution:");
+            System.out.println("Iterations: " + iter);
+            for (int i = 0; i < array_m.length; i++) {
+                System.out.println("x" + i + " = " + roundingAnswers(answer[i], accuracy));
             }
-        }else{
-            String num = "";
-            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-            while(test){
+        } else {
+            String number = "";
+            BufferedReader input_data_num = new BufferedReader(new InputStreamReader(System.in));
+            while (input_data_cheking) {
                 System.out.println("""
-                        Диагональное преобладание отсутствует:\s
-                        1. Переставить строки.\s
-                        2. Завершить программу.""");
-                num = in.readLine();
-                if (num.equals("1") || num.equals("2")){
-                    test = false;
+                        There is no diagonal predominance:\s
+                        1. Rearrange the rows.\s
+                        2. End the program.""");
+                number = input_data_num.readLine();
+                if (number.equals("1") || number.equals("2")) {
+                    input_data_cheking = false;
                 }
             }
-            switch (num) {
-                case ("1") -> {
-                    if (tryToRewriteString(M, B)) {
-                        solveMatrix(M, B);
-                    } else {
-                        System.out.println("Не получилось добиться диагонального преобладания.");
-                    }
+            if (number.equals("1")) {
+                if (tryToRewriteString(array_m, array_b)) {
+                    matrixSolvingWithGaussSeidelMethod(array_m, array_b);
+                } else {
+                    System.out.println("It was not possible to achieve diagonal dominance.");
                 }
-                case ("2") -> System.out.println("Отмена.");
-                default -> System.out.println(" ");
+            } else if (number.equals("2")) {
+                System.out.println("Cancel.");
+            } else {
+                System.out.println(" ");
             }
         }
     }

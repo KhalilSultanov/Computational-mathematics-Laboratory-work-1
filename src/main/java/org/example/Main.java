@@ -2,25 +2,27 @@ package org.example;
 
 import java.io.*;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 public class Main {
     public static void main(String[] args) throws IOException {
         boolean test = true;
         String num = "";
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        Scanner sc = new Scanner(System.in);
         while(test){
             try{
                 System.out.println("""
-                        Выберете тип считывания данных:\s
-                        1. Ввод данных с консоли.\s
-                        2. Чтение данных из файла.\s
-                        3. Генерация случайных значений.""");
+                        Select the type of data reading:\s
+                        1. Entering data from the console.\s
+                        2. Reading data from a file.\s
+                        3. Generation of random values.""");
                 num =  in.readLine();
                 if ((num.equals("1")) || (num.equals("2")) || (num.equals("3"))) {
                     test = false;
                 }
             }catch (IOException w) {
-                System.out.println("Ошибка ввода");
+                System.out.println("Input error");
                 try {
                     in.close();
                 } catch (IOException r) {
@@ -34,14 +36,14 @@ public class Main {
                     float[][] M;
                     float[] B;
                     int n;
-                    System.out.println("Число неизвестных:");
+                    System.out.println("Number of unknowns:");
                     n = Integer.parseInt(in.readLine());
                     M = new float[n][n];
                     B = new float[n];
-                    System.out.println("Погрешность:");
+                    System.out.println("Accuracy:");
                     float eps = Float.parseFloat(in.readLine());
                     for (int i = 0; i < n; i++) {
-                        System.out.println("Введите " + (i + 1) + "-ую строку уравнения:");
+                        System.out.println("Enter " + (i + 1) + "-th line of equation:");
                         StringTokenizer inputMatrix = new StringTokenizer(in.readLine());
                         for (int j = 0; j < n + 1; j++)
                             if (j >= n) {
@@ -51,7 +53,7 @@ public class Main {
                             }
                     }
                     SeidelMethod gaussSeidel = new SeidelMethod(eps);
-                    gaussSeidel.solveMatrix(M, B);
+                    gaussSeidel.matrixSolvingWithGaussSeidelMethod(M, B);
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
                     try {
@@ -59,7 +61,7 @@ public class Main {
                     } catch (IOException r) {
                         System.out.println(r.getMessage());
                     }
-                    System.out.println("Некорректный ввод");
+                    System.out.println("Incorrect input");
                 }
             }
             case ("2") -> {
@@ -67,8 +69,10 @@ public class Main {
                     float[][] M;
                     float[] B;
                     int n;
-                    System.out.println("Считываю данные из файла...");
-                    BufferedReader reader = new BufferedReader(new FileReader("test.txt"));
+                    System.out.println("Write file name:");
+                    String file_name = sc.nextLine();
+                    System.out.println("I'm reading data from a file...");
+                    BufferedReader reader = new BufferedReader(new FileReader(file_name));
                     n = Integer.parseInt(reader.readLine());
                     M = new float[n][n];
                     B = new float[n];
@@ -83,19 +87,19 @@ public class Main {
                                 }
                             }
                     }
-                    System.out.println("Погрешность:");
+                    System.out.println("Accuracy:");
                     float eps = Float.parseFloat(in.readLine());
                     SeidelMethod gaussSeidel = new SeidelMethod(eps);
-                    gaussSeidel.solveMatrix(M, B);
+                    gaussSeidel.matrixSolvingWithGaussSeidelMethod(M, B);
                 } catch (FileNotFoundException e) {
-                    System.out.println("Файл не найден!");
+                    System.out.println("File not found!");
                     try {
                         in.close();
                     } catch (IOException b) {
-                        System.out.println("Ошибка!");
+                        System.out.println("Error!");
                     }
                 } catch (IOException e) {
-                    System.out.println("Ошибка!");
+                    System.out.println("Error!");
                 }
             }
             case ("3") -> {
@@ -103,7 +107,7 @@ public class Main {
                     float[][] M;
                     float[] B;
                     int n;
-                    System.out.println("Вы выбрали cлучайную генерацию, введите кол-во неизвестных:");
+                    System.out.println("You have chosen random generation, enter the number of unknowns:");
                     float sum;
                     n = Integer.parseInt(in.readLine());
                     M = new float[n][n];
@@ -132,7 +136,7 @@ public class Main {
                         }
                     }
                     int n3 = M.length;
-                    System.out.println("Ваша матрица:");
+                    System.out.println("Your matrix:");
                     for (int i = 0; i < n3; i++) {
                         for (int j = 0; j < n3 + 1; j++)
                             if (j == n) {
@@ -143,11 +147,11 @@ public class Main {
                         System.out.println();
                     }
                     System.out.println(M.length);
-                    System.out.println("Введите допустимую погрешность:");
+                    System.out.println("Enter the margin of accuracy:");
                     float eps;
                     eps = Float.parseFloat(in.readLine());
                     SeidelMethod gaussSeidel = new SeidelMethod(eps);
-                    gaussSeidel.solveMatrix(M, B);
+                    gaussSeidel.matrixSolvingWithGaussSeidelMethod(M, B);
                 } catch (RuntimeException | IOException e) {
                     System.out.println("Error!");
                     in.close();
